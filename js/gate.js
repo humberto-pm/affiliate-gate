@@ -250,14 +250,8 @@ window.handleContinue = function() {
 
     console.log('Redirecting to:', destinationUrl);
 
-    // Use anchor click with target _top to ensure navigation
-    const link = document.createElement('a');
-    link.href = destinationUrl;
-    link.target = '_top';
-    link.rel = 'noopener';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Use window.open with _self to navigate in same tab
+    window.open(destinationUrl, '_self');
 }
 
 /**
