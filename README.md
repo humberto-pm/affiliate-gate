@@ -4,51 +4,19 @@ Age verification + captcha interstitial for affiliate links. Sits between Reddit
 
 **Flow:** Reddit post → Gate page (captcha + 18+ checkbox) → Affiliate URL
 
-## Quick Start
+## Current Deployment
 
-### 1. Set Up Cloudflare Turnstile
+- **Live URL:** https://humberto-pm.github.io/affiliate-gate/
+- **GitHub Repo:** https://github.com/humberto-pm/affiliate-gate
+- **Turnstile Site Key:** `0x4AAAAAACNCNb3XGAXXWox4`
 
-1. Create free account at [cloudflare.com](https://cloudflare.com)
-2. Go to **Turnstile** → **Add widget**
-3. Add your domain (e.g., `yourusername.github.io`)
-4. Copy the **Site Key**
-5. Replace `YOUR_TURNSTILE_SITE_KEY` in `index.html`:
+## Cloudflare Turnstile
 
-```html
-<div class="cf-turnstile"
-     data-sitekey="0x4AAAAAAA..."  <!-- Your site key here -->
-     data-callback="onTurnstileSuccess"
-     data-theme="dark">
-</div>
-```
+The Turnstile widget is already configured. To add new domains:
 
-### 2. Deploy to GitHub Pages
-
-```bash
-# Create new repo
-gh repo create affiliate-gate --public --clone
-cd affiliate-gate
-
-# Copy files
-cp -r /path/to/html/gate/* .
-
-# Push and enable Pages
-git add . && git commit -m "Initial gate page"
-git push -u origin main
-
-# Go to Settings → Pages → Source: main branch, / (root)
-```
-
-Your gate will be live at: `https://yourusername.github.io/affiliate-gate/`
-
-### 3. (Optional) Custom Domain
-
-1. Add `CNAME` file with your domain:
-   ```
-   gate.yourdomain.com
-   ```
-2. Add DNS record: `CNAME gate → yourusername.github.io`
-3. Enable HTTPS in GitHub Pages settings
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com) → Turnstile
+2. Edit the widget
+3. Add new hostname under "Hostname Management"
 
 ## Generating Gate URLs
 
@@ -65,7 +33,7 @@ generateGateUrl('https://chainwager.net/go/playojo-fre-spi-en-ca/?!86aeepf52', '
 
 ```javascript
 function createGateLink(affiliateUrl, geo = 'US') {
-    const baseUrl = 'https://yourusername.github.io/affiliate-gate/';
+    const baseUrl = 'https://humberto-pm.github.io/affiliate-gate/';
     const encoded = btoa(affiliateUrl);
     return `${baseUrl}?dest=${encoded}&geo=${geo}`;
 }
@@ -80,7 +48,7 @@ createGateLink('https://spintoday.net/go/betmgm/', 'US');
 import base64
 
 def create_gate_link(affiliate_url, geo='US'):
-    base_url = 'https://yourusername.github.io/affiliate-gate/'
+    base_url = 'https://humberto-pm.github.io/affiliate-gate/'
     encoded = base64.b64encode(affiliate_url.encode()).decode()
     return f'{base_url}?dest={encoded}&geo={geo}'
 
@@ -151,9 +119,8 @@ const ALLOWED_DOMAINS = [
 ## Testing Locally
 
 ```bash
-# Python simple server
-cd html/gate
-python -m http.server 8080
+# Python simple server (from repo root)
+python3 -m http.server 8080
 
 # Open browser
 open http://localhost:8080/?dest=aHR0cHM6Ly9jaGFpbndh...&geo=US
