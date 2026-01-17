@@ -234,19 +234,24 @@ function updateButtonState() {
 /**
  * Handle continue button click
  */
-function handleContinue() {
+window.handleContinue = function() {
+    console.log('handleContinue called', { captchaPassed, ageConfirmed, destinationUrl });
+
     if (!captchaPassed || !ageConfirmed || !destinationUrl) {
+        console.log('Conditions not met, returning');
         return;
     }
 
     // Add loading state
-    continueBtn.classList.add('loading');
-    continueBtn.disabled = true;
+    if (continueBtn) {
+        continueBtn.classList.add('loading');
+        continueBtn.disabled = true;
+    }
 
-    // Small delay for visual feedback, then redirect
-    setTimeout(function() {
-        window.location.href = destinationUrl;
-    }, 300);
+    console.log('Redirecting to:', destinationUrl);
+
+    // Redirect immediately
+    window.location.href = destinationUrl;
 }
 
 /**
