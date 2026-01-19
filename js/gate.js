@@ -259,10 +259,14 @@ window.handleContinue = function() {
 
     console.log('Redirecting to:', destinationUrl);
 
-    // Use location.replace for cleaner navigation (no back button to gate)
-    // Small delay to ensure UI updates
+    // Create and click an anchor element - most reliable cross-platform method
     setTimeout(function() {
-        window.location.replace(destinationUrl);
+        var a = document.createElement('a');
+        a.href = destinationUrl;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     }, 100);
 }
 
