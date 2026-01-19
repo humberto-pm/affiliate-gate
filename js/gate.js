@@ -250,8 +250,8 @@ window.handleContinue = function() {
 
     console.log('Redirecting to:', destinationUrl);
 
-    // Use window.open with _self to navigate in same tab
-    window.open(destinationUrl, '_self');
+    // Direct location assignment - most reliable redirect method
+    window.location.href = destinationUrl;
 }
 
 /**
