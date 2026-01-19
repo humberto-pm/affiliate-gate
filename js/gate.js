@@ -234,13 +234,22 @@ function updateButtonState() {
 /**
  * Handle continue button click
  */
+let isRedirecting = false;
 window.handleContinue = function() {
-    console.log('handleContinue called', { captchaPassed, ageConfirmed, destinationUrl });
+    console.log('handleContinue called', { captchaPassed, ageConfirmed, destinationUrl, isRedirecting });
+
+    // Prevent double-firing
+    if (isRedirecting) {
+        console.log('Already redirecting, ignoring');
+        return;
+    }
 
     if (!captchaPassed || !ageConfirmed || !destinationUrl) {
         console.log('Conditions not met, returning');
         return;
     }
+
+    isRedirecting = true;
 
     // Add loading state
     if (continueBtn) {
@@ -250,8 +259,11 @@ window.handleContinue = function() {
 
     console.log('Redirecting to:', destinationUrl);
 
-    // Direct location assignment - most reliable redirect method
-    window.location.href = destinationUrl;
+    // Use location.replace for cleaner navigation (no back button to gate)
+    // Small delay to ensure UI updates
+    setTimeout(function() {
+        window.location.replace(destinationUrl);
+    }, 100);
 }
 
 /**
