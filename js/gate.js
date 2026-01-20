@@ -28,6 +28,8 @@ const ALLOWED_DOMAINS = [
     'metrotimes.com',
     'culture.org',
     'jackpotcitycasino.com',
+    'spincasino.com',
+    'gotoplayojo.com',
     // Add more affiliate/tracking domains as needed
 ];
 
