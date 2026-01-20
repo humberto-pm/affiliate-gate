@@ -24,6 +24,7 @@ const ALLOWED_DOMAINS = [
     'drafttek.com',
     'metrotimes.com',
     'culture.org',
+    'jackpotcitycasino.com',
     // Add more affiliate/tracking domains as needed
 ];
 
