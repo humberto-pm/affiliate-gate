@@ -1,11 +1,14 @@
 /**
  * Gate Page - Age Verification + Captcha Interstitial
  *
- * URL Pattern: https://gate.example.com/?dest=BASE64_URL&geo=US
+ * URL Patterns:
+ *   - Short ID: https://gate.example.com/?id=jpc1
+ *   - Base64:   https://gate.example.com/?dest=BASE64_URL&geo=US (backwards compatible)
  *
  * Configuration:
  * 1. Add your Turnstile site key to index.html (data-sitekey attribute)
- * 2. Update ALLOWED_DOMAINS below with your affiliate tracking domains
+ * 2. For short IDs: Add destinations to config/destinations.json
+ * 3. For base64: Update ALLOWED_DOMAINS below
  */
 
 // ============================================
@@ -98,7 +101,7 @@ let continueBtn, ageCheckbox, legalAgeEl, helplineEl, errorMessageEl, errorTextE
 // INITIALIZATION
 // ============================================
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // Initialize DOM references
     continueBtn = document.getElementById('continue-btn');
     ageCheckbox = document.getElementById('age-checkbox');
@@ -107,39 +110,66 @@ document.addEventListener('DOMContentLoaded', function() {
     errorMessageEl = document.getElementById('error-message');
     errorTextEl = document.getElementById('error-text');
     captchaStatusEl = document.getElementById('captcha-status');
+
     // Parse URL parameters
     const params = new URLSearchParams(window.location.search);
+    const shortId = params.get('id');
     const encodedDest = params.get('dest');
-    currentGeo = (params.get('geo') || 'US').toUpperCase();
 
-    // Apply GEO-specific content
-    applyGeoConfig(currentGeo);
+    // Method 1: Short ID lookup (preferred)
+    if (shortId) {
+        try {
+            const config = await loadDestinationsConfig();
+            const destination = config[shortId];
 
-    // Validate destination URL
-    if (!encodedDest) {
+            if (!destination) {
+                showError('Invalid destination ID');
+                return;
+            }
+
+            destinationUrl = destination.url;
+            currentGeo = (destination.geo || 'US').toUpperCase();
+
+            console.log('Gate initialized via ID:', shortId, '→', new URL(destinationUrl).hostname);
+
+        } catch (e) {
+            console.error('Config load error:', e);
+            showError('Failed to load destination');
+            return;
+        }
+    }
+    // Method 2: Base64 encoded destination (backwards compatible)
+    else if (encodedDest) {
+        currentGeo = (params.get('geo') || 'US').toUpperCase();
+
+        try {
+            destinationUrl = atob(encodedDest);
+
+            // Validate URL format
+            const url = new URL(destinationUrl);
+
+            // Validate against allowed domains
+            if (!isAllowedDomain(url.hostname)) {
+                showError('Invalid destination domain');
+                return;
+            }
+
+            console.log('Gate initialized via base64 for:', url.hostname);
+
+        } catch (e) {
+            console.error('URL decode error:', e);
+            showError('Invalid destination URL');
+            return;
+        }
+    }
+    // No destination specified
+    else {
         showError('No destination specified');
         return;
     }
 
-    try {
-        destinationUrl = atob(encodedDest);
-
-        // Validate URL format
-        const url = new URL(destinationUrl);
-
-        // Validate against allowed domains
-        if (!isAllowedDomain(url.hostname)) {
-            showError('Invalid destination domain');
-            return;
-        }
-
-        console.log('Gate initialized for:', url.hostname);
-
-    } catch (e) {
-        console.error('URL decode error:', e);
-        showError('Invalid destination URL');
-        return;
-    }
+    // Apply GEO-specific content
+    applyGeoConfig(currentGeo);
 
     // Set up event listeners
     ageCheckbox.addEventListener('change', function(e) {
@@ -158,6 +188,17 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Navigating via native link to:', this.href);
     });
 });
+
+/**
+ * Load destinations config file
+ */
+async function loadDestinationsConfig() {
+    const response = await fetch('config/destinations.json');
+    if (!response.ok) {
+        throw new Error('Failed to load destinations config');
+    }
+    return response.json();
+}
 
 // ============================================
 // FUNCTIONS
